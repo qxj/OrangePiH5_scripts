@@ -150,11 +150,11 @@ chmod a+x "$DEST/usr/sbin/policy-rc.d"
 
 do_chroot() {
 	cmd="$@"
-	chroot "$DEST" mount -t proc proc /proc || true
-	chroot "$DEST" mount -t sysfs sys /sys || true
-	chroot "$DEST" $cmd
-	chroot "$DEST" umount /sys
-	chroot "$DEST" umount /proc
+	chroot "$DEST" qemu-aarch64-static /bin/mount -t proc proc /proc || true
+	chroot "$DEST" qemu-aarch64-static /bin/mount -t sysfs sys /sys || true
+	chroot "$DEST" qemu-aarch64-static $cmd
+	chroot "$DEST" qemu-aarch64-static /bin/umount /sys
+	chroot "$DEST" qemu-aarch64-static /bin/umount /proc
 }
 
 add_platform_scripts() {
@@ -178,7 +178,7 @@ ExecStart=/usr/local/sbin/OrangePi_eth0-mackeeper.sh
 [Install]
 WantedBy=multi-user.target
 EOF
-	do_chroot systemctl enable eth0-mackeeper
+	do_chroot /bin/systemctl enable eth0-mackeeper
 }
 
 add_corekeeper_service() {
@@ -192,7 +192,7 @@ ExecStart=/usr/local/sbin/OrangePi_corekeeper.sh
 [Install]
 WantedBy=multi-user.target
 EOF
-	do_chroot systemctl enable cpu-corekeeper
+	do_chroot /bin/systemctl enable cpu-corekeeper
 }
 
 add_ssh_keygen_service() {
@@ -219,7 +219,7 @@ RemainAfterExit=yes
 [Install]
 WantedBy=ssh.service
 EOF
-	do_chroot systemctl enable ssh-keygen
+	do_chroot /bin/systemctl enable ssh-keygen
 }
 
 add_disp_udev_rules() {
@@ -277,8 +277,8 @@ case $DISTRO in
 		mv "$DEST/etc/resolv.conf" "$DEST/etc/resolv.conf.dist"
 		cp /etc/resolv.conf "$DEST/etc/resolv.conf"
 		sed -i 's|CheckSpace|#CheckSpace|' "$DEST/etc/pacman.conf"
-		do_chroot pacman -Rsn --noconfirm linux-aarch64 || true
-		do_chroot pacman -Sy --noconfirm --needed dosfstools curl xz iw rfkill netctl dialog wpa_supplicant alsa-utils || true
+		do_chroot /bin/pacman -Rsn --noconfirm linux-aarch64 || true
+		do_chroot /bin/pacman -Sy --noconfirm --needed dosfstools curl xz iw rfkill netctl dialog wpa_supplicant alsa-utils || true
 		add_platform_scripts
 		add_mackeeper_service
 		add_corekeeper_service
@@ -356,7 +356,7 @@ EOF
 		rm -f "$DEST/second-phase"
 		rm -f "$DEST/etc/resolv.conf"
 		rm -f "$DEST"/etc/ssh/ssh_host_*
-		do_chroot ln -s /run/resolvconf/resolv.conf /etc/resolv.conf
+		do_chroot /bin/ln -s /run/resolvconf/resolv.conf /etc/resolv.conf
 		;;
 	*)
 		;;

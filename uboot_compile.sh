@@ -20,6 +20,9 @@ TOOLS=$ROOT/toolchain/gcc-linaro-aarch/gcc-linaro/bin/arm-linux-gnueabihf-
 
 BUILD=$ROOT/output
 CORES=$((`cat /proc/cpuinfo | grep processor | wc -l` - 1))
+if [[ $CORES -le 0 ]]; then
+    CORES=1
+fi
 
 # Perpar souce code
 if [ ! -d $UBOOT ]; then
@@ -42,7 +45,7 @@ echo "Compile boot0......"
 if [ ! -f $UBOOT/sunxi_spl/boot0/boot0_sdcard.bin ]; then
 	make  sun50iw2p1_config
 fi
-make spl 
+make spl
 cd -
 echo "Complete compile...."
 #####################################################################
